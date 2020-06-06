@@ -1,0 +1,13 @@
+{
+    "launch": {
+    
+    },
+    "vsdocker.imageUser": "",
+    "timeline.pageSize": 0,
+    "liveServer.settings.multiRootWorkspaceName": "",
+    "mssql.saveAsCsv.lineSeparator": "",
+    "eslint.workingDirectories": [
+        "./client",
+        "./apis"
+    ]
+}
