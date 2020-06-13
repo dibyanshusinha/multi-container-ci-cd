@@ -1,3 +1,4 @@
+/* eslint-disable */ 
 import React, { PureComponent } from 'react';
 import Loading from './components/Loading';
 import {
@@ -7,21 +8,35 @@ import './App.css';
 
 import Routes from './components/Routes';
 
+const delay = (ms) => { 
+  return new Promise((resolve) => setTimeout(resolve, ms))
+};
+
+const renderComp = (isAuth, props)=>{
+  if(isAuth){
+    console.log('+++++++++++++++++')
+    return props.children;
+  }else {
+    console.log("----------------")
+    return <Loading />
+  }
+}
+
 const AuthRouterComponent = (props) =>{
+  let isAuth = false;
+  // delay(10000).then(()=>{
+  //   // isAuth = window.localStorage.getItem("auth") === "true"; 
+  //   isAuth = true;
+  // });
 
-  //while checking show loading
-  const isAuthenticated = window.localStorage.getItem('isAuth');
-  console.log(isAuthenticated);
-
-   if(isAuthenticated === 'false'){
-     //public routes - redirect to signin
-     return <Loading/>
-   }
-
-   //protectedrotes and redirect /home
-   return props.children;
- 
-  
+  fetch('https://jsonplaceholder.typicode.com/users/1')
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+    isAuth = true;
+    return renderComp(isAuth, props);
+  });
+  return renderComp(isAuth, props);
 }
 
 
@@ -32,9 +47,9 @@ class App extends PureComponent {
   render() {
     return (
       <Router>
-          <AuthWrapper>
-            <Routes />
-          </AuthWrapper>
+        <AuthWrapper>
+          <Routes />;
+        </AuthWrapper>
       </Router>
     );
   }
