@@ -1,5 +1,5 @@
 /* eslint-disable */ 
-import React, { PureComponent } from 'react';
+import React, { useState, useEffect, useContext, useMemo }  from 'react';
 import Loading from './components/Loading';
 import {
   BrowserRouter as Router, Switch, Route, Redirect, withRouter,
@@ -7,52 +7,48 @@ import {
 import './App.css';
 
 import Routes from './components/Routes';
-
-const delay = (ms) => { 
-  return new Promise((resolve) => setTimeout(resolve, ms))
-};
-
-const renderComp = (isAuth, props)=>{
-  if(isAuth){
-    console.log('+++++++++++++++++')
-    return props.children;
-  }else {
-    console.log("----------------")
-    return <Loading />
-  }
-}
-
-const AuthRouterComponent = (props) =>{
-  let isAuth = false;
-  // delay(10000).then(()=>{
-  //   // isAuth = window.localStorage.getItem("auth") === "true"; 
-  //   isAuth = true;
-  // });
-
-  fetch('https://jsonplaceholder.typicode.com/users/1')
-  .then(response => response.json())
-  .then(data => {
-    console.log(data);
-    isAuth = true;
-    return renderComp(isAuth, props);
-  });
-  return renderComp(isAuth, props);
-}
+import AuthContext from './contexts/AuthContext';
 
 
-const AuthWrapper = withRouter(AuthRouterComponent);
+const App = () =>{
+
+  const [authUser, setAuthUser] = useState();
+  const [authLoader, setauthLoader] = useState(true);
+
+  const memoisedAuthContext = useMemo(() => ({ authUser, setAuthUser }), [authUser, setAuthUser]);
 
 
-class App extends PureComponent {
-  render() {
-    return (
-      <Router>
-        <AuthWrapper>
-          <Routes />;
-        </AuthWrapper>
-      </Router>
-    );
-  }
+
+
+
+  //when App gets loaded check once
+  useEffect(() => {
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    const fetchData = async() => {
+      console.log('From AuthContext');
+      if(localStorage.getItem('isAuth')==='true'){
+        await delay(3000);
+        setAuthUser({ email: 'abc', name: 'Dibs' });
+        setauthLoader(false);
+      }else{
+        setauthLoader(false);
+      }     
+    }
+
+    fetchData();
+  }, []);  
+
+
+
+  return (
+    <Router>
+        <AuthContext.Provider value={ memoisedAuthContext }>
+        {console.log('Ran Auth context', authLoader, authUser)}
+        {authLoader ? <Loading /> : authUser ? <Routes isAuth={true} />: <Routes isAuth={false} />}
+        </AuthContext.Provider>
+    </Router>
+  );
 }
 
 export default App;
